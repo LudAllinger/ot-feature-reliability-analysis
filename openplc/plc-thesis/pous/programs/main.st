@@ -2,12 +2,15 @@ PROGRAM main
 VAR
 	water_level : int AT %MW0 := 50; (* Water levels of the tank *)
 	inlet_valve : bool AT %QX0.0 := FALSE; (* Increases the water level *)
+	inlet_flow : int := 0;
 	outlet_valve : bool AT %QX0.1 := FALSE; (* Decreases the water level *)
+	outlet_flow : int := 0;
 	pump : bool AT %QX0.2 := FALSE; (* Another variable that need to be true to decrease the water level *)
-	alarm : bool AT %QX0.3 := FALSE; (* Alarm if something is wrong *)
+	level_alarm : bool AT %QX0.3 := FALSE; (* Alarm if something is wrong *)
 	water_demand : int AT %MW1 := 0; (* Demand of water that takes from the water tank *)
 	water_chemicals : int AT %MW3 := 50; (* Chemicals in the water *)
-	cycle_counter : int AT %MW2 := 0; (* A counter to add deviations through MOD *)
+	cycle_counter : int := 0; (* A counter to add deviations through MOD *)
+	chem_alarm : bool AT %QX0.4 := FALSE; (* Alarm if something is wrong *)
 	timer : TON; (* A timer for when the commands will execute (every 100ms) *)
 	timer_trigger : bool := TRUE;
 END_VAR
@@ -18,52 +21,72 @@ IF timer.Q THEN
     timer_trigger := FALSE;
     cycle_counter := cycle_counter + 1;
 
-    water_demand := 1 + (cycle_counter MOD 3);
-    water_level := water_level - water_demand;
-    water_chemicals := 50 + (cycle_counter MOD 5) - 2;
+    water_demand := 1 + (cycle_counter MOD 2);
 
+    IF ((cycle_counter * 7) MOD 113) = 0 THEN
+        water_chemicals := water_chemicals + (cycle_counter MOD 3) - 1;
+    END_IF;
 
     IF inlet_valve THEN
-        water_level := water_level + 3;
+        inlet_flow := inlet_flow + 1;
+    ELSIF inlet_flow > 0 THEN
+        inlet_flow := inlet_flow - 1;
     END_IF;
 
-    IF pump AND outlet_valve THEN
-        water_level := water_level - 1;
+    IF outlet_valve AND pump THEN
+        outlet_flow := outlet_flow + 1;
+    ELSIF outlet_flow > 0 THEN
+        outlet_flow := outlet_flow - 1;
     END_IF;
+
+    IF inlet_flow > 5 THEN 
+        inlet_flow := 5; 
+    END_IF;
+
+    IF inlet_flow < 0 THEN 
+        inlet_flow := 0; 
+    END_IF;
+
+    IF outlet_flow > 5 THEN 
+        outlet_flow := 5; 
+    END_IF;
+    
+    IF outlet_flow < 0 THEN 
+        outlet_flow := 0; 
+    END_IF;
+
+    water_level := water_level + inlet_flow - outlet_flow - water_demand + (cycle_counter MOD 3) - 1;
+
+    IF water_level < 0 THEN
+        water_level := 0;
+    END_IF;
+
 END_IF;
 
 IF NOT timer.Q THEN
     timer_trigger := TRUE;
 END_IF;
 
-IF water_level > 90 THEN
+IF water_level >= 90 THEN
     inlet_valve := FALSE;
     outlet_valve := TRUE;
     pump := TRUE;
 
-ELSIF water_level > 70 THEN
-    inlet_valve := FALSE;
-    outlet_valve := FALSE;
-    pump := FALSE;
-
-ELSIF water_level < 40 THEN
+ELSIF water_level <= 50 THEN
     inlet_valve := TRUE;
     outlet_valve := FALSE;
     pump := FALSE;
+
 END_IF;
 
-IF water_level > 95 THEN
-    alarm := TRUE;
+IF water_level >= 95 THEN
+    level_alarm := TRUE;
 ELSIF water_level < 85 THEN
-    alarm := FALSE;
+    level_alarm := FALSE;
 END_IF;
 
-IF water_chemicals > 80 THEN
-    alarm := TRUE;
-END_IF;
-
-IF water_level < 0 THEN
-    water_level := 0;
+IF water_chemicals > 53 OR water_chemicals < 48 THEN
+    chem_alarm := TRUE;
 END_IF;
 
 END_PROGRAM

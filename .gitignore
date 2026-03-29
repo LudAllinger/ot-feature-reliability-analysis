@@ -12,3 +12,7 @@ Thumbs.db
 
 # VSCode
 .vscode/
+
+# Logs and data files
+/logs/
+*.csv

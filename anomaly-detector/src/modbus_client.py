@@ -1,3 +1,9 @@
+###
+# This program connects to the PLC simulator and continuously reads data, logging it to a CSV file.
+# Make sure to have the PLC simulator running before starting this.
+# Press Ctrl+C to stop the capture when done.
+###
+
 from pymodbus.client import ModbusTcpClient
 from pymodbus.exceptions import ModbusIOException
 import time

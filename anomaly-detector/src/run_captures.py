@@ -1,3 +1,9 @@
+###
+# Run this program to start both PLC and Network captures simultaneously.
+# Make sure to have the PLC simulator running before starting this.
+# Press Ctrl+C to stop both captures when done.
+###
+
 from pathlib import Path
 import subprocess
 import time

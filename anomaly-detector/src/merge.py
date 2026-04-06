@@ -1,3 +1,8 @@
+###
+# Run this script to merge PLC and Network logs.
+# Run after completing captures and generating logs with run_captures.py.
+###
+
 import pandas as pd
 import os
 from pathlib import Path

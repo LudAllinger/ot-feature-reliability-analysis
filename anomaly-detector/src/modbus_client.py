@@ -8,8 +8,8 @@ import atexit
 
 # ----- Configuration -----
 PLC_IP = "127.0.0.1"
-LOG_FILE = "plc_data_log.csv"
-ERROR_LOG_FILE = "error_log.txt"
+LOG_FILE = "logs/plc/normal/plc_data_log.csv"
+ERROR_LOG_FILE = "logs/plc/normal/error_log.txt"
 MAX_LOG_SIZE = 50_000_000  # 50 MB
 EXPERIMENT = "normal"
 

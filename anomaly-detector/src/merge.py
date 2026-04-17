@@ -13,7 +13,7 @@ plc = pd.read_csv(BASE / "logs/plc/normal/plc_data_log.csv")
 network = pd.read_csv(BASE / "logs/network/normal/network_log.csv")
 
 plc["timestamp"] = pd.to_datetime(plc["timestamp"])
-network["timestamp"] = pd.to_datetime(network["timestamp"])
+network["timestamp"] = pd.to_datetime(network["timestamp"], format="mixed")
 
 network["interval_since_last"] = network["interval_since_last"].fillna(0)
 

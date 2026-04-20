@@ -1,20 +1,22 @@
 import json
 import os
-
+from pathlib import Path
 from datetime import datetime
 from packet_capture import PacketCapture
 from traffic_analyzer import TrafficAnalyzer
 
+BASE     = Path(__file__).resolve().parents[2]
+LOG_FILE = BASE / "logs" / "network" / "normal" / "network_log.csv"
+LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 
 def main():
     analyzer = TrafficAnalyzer()
-    log_file = "logs/network/normal/network_log.csv"
-
-    if not os.path.exists(log_file):
-        with open(log_file, "w") as f:
-            f.write("timestamp,src_ip,dst_ip,function_code,packet_rate,interval_since_last\n")
     
-    log_f = open(log_file, "a")
+    if not LOG_FILE.exists():
+        with open(LOG_FILE, "w") as f:
+            f.write("timestamp,src_ip,dst_ip,function_code,packet_rate,interval_since_last\n")
+
+    log_f = open(LOG_FILE, "a")
 
     def handle_packet(packet):
         event = analyzer.analyze_packet(packet)
@@ -30,7 +32,7 @@ def main():
 
     capture = PacketCapture(packet_handler=handle_packet)
 
-    ## Change this to your actual network interface name (e.g., "eth0" on Linux or "Ethernet" on Windows)
+    ## network interface name
     # interface = "eth0"
     interface = r"\Device\NPF_Loopback"
 

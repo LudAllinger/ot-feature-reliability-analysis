@@ -1,19 +1,19 @@
 {
   "metadata": {
-    "total_rows_used": 18642,
+    "total_rows_used": 36098,
     "percentile_low": 1,
     "percentile_high": 99,
-    "source": "C:\\Users\\ameli\\OneDrive\\Documents\\thesis\\thesis\\anomaly-detector\\src\\normalAltered.csv"
+    "source": "C:\\Users\\ameli\\OneDrive\\Documents\\thesis\\thesis\\logs\\merged\\normal.csv"
   },
   "network": {
     "packet_count": {
-      "mean": 3.968136466044416,
+      "mean": 1.9854839603302121,
       "lower_bound": 0.0,
-      "upper_bound": 8.0
+      "upper_bound": 4.0
     },
     "avg_interval_since_last": {
-      "mean": 0.05022979570969465,
-      "lower_bound": 0.0001640319824218,
+      "mean": 0.09984346870110382,
+      "lower_bound": 0.0,
       "upper_bound": 0.11
     },
     "write_count": {
@@ -23,11 +23,11 @@
   },
   "process": {
     "water_level": {
-      "min": 36,
-      "max": 95
+      "min": 37,
+      "max": 94
     },
     "water_demand": {
-      "min": 1,
+      "min": 0,
       "max": 2
     },
     "inlet": {
@@ -48,21 +48,10 @@
         true
       ]
     },
-    "levelArm": {
-      "allowed_states": [
-        false,
-        true
-      ]
-    },
-    "chemArm": {
-      "allowed_states": [
-        false
-      ]
-    },
     "invariants": {
       "inlet_outlet_inverse": true,
       "pump_mirrors_outlet": true,
-      "chemArm_always_false": true
+      "chemArm_always_false": false
     }
   }
 }

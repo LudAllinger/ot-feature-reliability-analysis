@@ -37,7 +37,7 @@ class BaselineBuilder:
                 "total_rows_used": len(normal),
                 "percentile_low":  self.pct_low,
                 "percentile_high": self.pct_high,
-                "source": csv_path,
+                "source": str(csv_path),
             },
             "network": {},
             "process": {},
@@ -67,22 +67,25 @@ class BaselineBuilder:
 
         # Process: continuous registers use observed min/max
         for col in ["water_level", "water_demand"]:
-            baseline["process"][col] = {
-                "min": int(normal[col].min()),
-                "max": int(normal[col].max()),
+            if col in normal.columns:
+                baseline["process"][col] = {
+                    "min": int(normal[col].min()),
+                    
+                    "max": int(normal[col].max()),
             }
 
         # Boolean coils
         for col in ["inlet", "outlet", "pump", "levelArm", "chemArm"]:
-            baseline["process"][col] = {
-                "allowed_states": sorted(normal[col].unique().tolist())
-            }
+            if col in normal.columns:
+                baseline["process"][col] = {
+                    "allowed_states": sorted(normal[col].unique().tolist())
+                }
 
         # Structural invariants
         baseline["process"]["invariants"] = {
             "inlet_outlet_inverse": True,
             "pump_mirrors_outlet":  True,
-            "chemArm_always_false": bool((normal["chemArm"] == False).all()),
+            "chemArm_always_false": bool((normal["chemArm"] == False).all()) if "chemArm" in normal.columns else False,
         }
         return baseline
 

@@ -3,7 +3,7 @@ import pandas as pd
 from anomalyDetector import AnomalyDetector, ALL_RULES, NETWORK_RULES, PROCESS_RULES
 
 BASELINE = r"C:\Users\ameli\OneDrive\Documents\thesis\thesis\anomaly-detector\src\baseline.json"
-NORMAL   = r"C:\Users\ameli\OneDrive\Documents\thesis\thesis\anomaly-detector\src\normalAltered.csv"
+NORMAL   = r"C:\Users\ameli\OneDrive\Documents\thesis\thesis\anomaly-detector\src\merged_log.csv"
 
 detector = AnomalyDetector.from_file(BASELINE)
 df       = pd.read_csv(NORMAL)

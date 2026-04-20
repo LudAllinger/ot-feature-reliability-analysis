@@ -1,0 +1,241 @@
+{
+  "normal": {
+    "description": "Clean normal capture \u2014 no attacks injected",
+    "expected_rule": "None",
+    "ground_truth": {
+      "total_rows": 36098,
+      "modified_rows_count": 0,
+      "modified_row_range": "N/A (dynamic or none)",
+      "changed_columns": []
+    },
+    "detection": {
+      "total_alerts": 0,
+      "alerted_rows_count": 0,
+      "alerts_by_rule": {}
+    },
+    "evaluation": {
+      "true_positives": 0,
+      "false_negatives": 0,
+      "false_positives": 0,
+      "true_negatives": 36098,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "detection_rate_pct": 0.0
+    }
+  },
+  "DoS": {
+    "description": "packet_count and avg_packet_rate doubled, avg_interval_since_last halved \u2014 simulates network flood",
+    "expected_rule": "PACKET_COUNT_ANOMALY + INTERVAL_ANOMALY",
+    "ground_truth": {
+      "total_rows": 16011,
+      "modified_rows_count": 51,
+      "modified_row_range": "10000-10050",
+      "changed_columns": [
+        "packet_count",
+        "avg_packet_rate",
+        "avg_interval_since_last"
+      ]
+    },
+    "detection": {
+      "total_alerts": 2,
+      "alerted_rows_count": 2,
+      "alerts_by_rule": {
+        "PACKET_COUNT_ANOMALY": 1,
+        "INTERVAL_ANOMALY": 1
+      }
+    },
+    "evaluation": {
+      "true_positives": 1,
+      "false_negatives": 50,
+      "false_positives": 1,
+      "true_negatives": 15959,
+      "precision": 0.5,
+      "recall": 0.0196,
+      "f1_score": 0.0377,
+      "detection_rate_pct": 1.96
+    }
+  },
+  "injection": {
+    "description": "pump forced True, outlet forced False \u2014 simulates unauthorized command injection forcing pump on with outlet closed",
+    "expected_rule": "PUMP_STATE_ANOMALY",
+    "ground_truth": {
+      "total_rows": 16011,
+      "modified_rows_count": 61,
+      "modified_row_range": "1200-1260",
+      "changed_columns": [
+        "pump",
+        "outlet"
+      ]
+    },
+    "detection": {
+      "total_alerts": 78,
+      "alerted_rows_count": 62,
+      "alerts_by_rule": {
+        "VALVE_STATE_ANOMALY": 16,
+        "PUMP_STATE_ANOMALY": 61,
+        "INTERVAL_ANOMALY": 1
+      }
+    },
+    "evaluation": {
+      "true_positives": 61,
+      "false_negatives": 0,
+      "false_positives": 1,
+      "true_negatives": 15949,
+      "precision": 0.9839,
+      "recall": 1.0,
+      "f1_score": 0.9919,
+      "detection_rate_pct": 100.0
+    }
+  },
+  "MitM": {
+    "description": "inlet and outlet both forced True \u2014 simulates MitM attack forcing both valves open simultaneously",
+    "expected_rule": "VALVE_STATE_ANOMALY",
+    "ground_truth": {
+      "total_rows": 16011,
+      "modified_rows_count": 51,
+      "modified_row_range": "5000-5050",
+      "changed_columns": [
+        "inlet",
+        "outlet"
+      ]
+    },
+    "detection": {
+      "total_alerts": 91,
+      "alerted_rows_count": 52,
+      "alerts_by_rule": {
+        "VALVE_STATE_ANOMALY": 51,
+        "PUMP_STATE_ANOMALY": 39,
+        "INTERVAL_ANOMALY": 1
+      }
+    },
+    "evaluation": {
+      "true_positives": 51,
+      "false_negatives": 0,
+      "false_positives": 1,
+      "true_negatives": 15959,
+      "precision": 0.9808,
+      "recall": 1.0,
+      "f1_score": 0.9903,
+      "detection_rate_pct": 100.0
+    }
+  },
+  "replay": {
+    "description": "rows 1400-1460 replaced with rows 100-160 \u2014 simulates replay attack retransmitting earlier valid traffic",
+    "expected_rule": "None \u2014 replayed valid data is behaviorally identical to normal",
+    "ground_truth": {
+      "total_rows": 16011,
+      "modified_rows_count": 61,
+      "modified_row_range": "1400-1460",
+      "changed_columns": [
+        "all columns"
+      ]
+    },
+    "detection": {
+      "total_alerts": 1,
+      "alerted_rows_count": 1,
+      "alerts_by_rule": {
+        "INTERVAL_ANOMALY": 1
+      }
+    },
+    "evaluation": {
+      "true_positives": 0,
+      "false_negatives": 61,
+      "false_positives": 1,
+      "true_negatives": 15949,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "detection_rate_pct": 0.0
+    }
+  },
+  "packetCount": {
+    "description": "packet_count tripled \u2014 simulates aggressive packet flood targeting network layer only",
+    "expected_rule": "PACKET_COUNT_ANOMALY",
+    "ground_truth": {
+      "total_rows": 16011,
+      "modified_rows_count": 51,
+      "modified_row_range": "15000-15050",
+      "changed_columns": [
+        "packet_count"
+      ]
+    },
+    "detection": {
+      "total_alerts": 52,
+      "alerted_rows_count": 52,
+      "alerts_by_rule": {
+        "PACKET_COUNT_ANOMALY": 51,
+        "INTERVAL_ANOMALY": 1
+      }
+    },
+    "evaluation": {
+      "true_positives": 51,
+      "false_negatives": 0,
+      "false_positives": 1,
+      "true_negatives": 15959,
+      "precision": 0.9808,
+      "recall": 1.0,
+      "f1_score": 0.9903,
+      "detection_rate_pct": 100.0
+    }
+  },
+  "sensor-spoofing": {
+    "description": "water_level set to 115 at row 5000 \u2014 simulates sensor spoofing reporting physically impossible value",
+    "expected_rule": "WATER_LEVEL_ANOMALY",
+    "ground_truth": {
+      "total_rows": 16011,
+      "modified_rows_count": 1,
+      "modified_row_range": "5000-5000",
+      "changed_columns": [
+        "water_level"
+      ]
+    },
+    "detection": {
+      "total_alerts": 2,
+      "alerted_rows_count": 2,
+      "alerts_by_rule": {
+        "WATER_LEVEL_ANOMALY": 1,
+        "INTERVAL_ANOMALY": 1
+      }
+    },
+    "evaluation": {
+      "true_positives": 1,
+      "false_negatives": 0,
+      "false_positives": 1,
+      "true_negatives": 16009,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1_score": 0.6667,
+      "detection_rate_pct": 100.0
+    }
+  },
+  "timings": {
+    "description": "avg_interval_since_last multiplied by random factor 1.0-2.0 over 11 rows at random entrypoint \u2014 simulates timing manipulation",
+    "expected_rule": "INTERVAL_ANOMALY",
+    "ground_truth": {
+      "total_rows": 16011,
+      "modified_rows_count": 0,
+      "modified_row_range": "N/A (dynamic or none)",
+      "changed_columns": [
+        "avg_interval_since_last"
+      ]
+    },
+    "detection": {
+      "total_alerts": 10,
+      "alerted_rows_count": 10,
+      "alerts_by_rule": {
+        "INTERVAL_ANOMALY": 10
+      }
+    },
+    "evaluation": {
+      "true_positives": 0,
+      "false_negatives": 0,
+      "false_positives": 0,
+      "true_negatives": 16011,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "detection_rate_pct": 0.0
+    }
+  }
+}

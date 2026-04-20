@@ -1,8 +1,11 @@
 import pandas as pd
 import numpy as np
+from pathlib import Path
 from sklearn.ensemble import IsolationForest
 
-df_train = pd.read_csv("logs/merged/normal.csv")
+BASE = Path(__file__).resolve().parent.parent
+
+df_train = pd.read_csv(BASE / "logs" / "merged" / "normal.csv")
 
 features = [
   "water_level", "water_demand",
@@ -16,7 +19,11 @@ X = df_train[features].astype(float)
 model = IsolationForest(random_state=42)
 model.fit(X)
 
-df = pd.read_csv("logs/attacks/DoS.csv")
+ATTACK_FILE = BASE / "logs" / "attacks" / "DoS.csv"
+OUTPUT_FILE = BASE / "logs" / "isolationForest" / f"{ATTACK_FILE.stem}_with_predictions.csv"
+OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+
+df = pd.read_csv(ATTACK_FILE)
 X_test = df[features].astype(float)
 
 scores = model.decision_function(X_test)
@@ -32,4 +39,6 @@ anomalies = df[df["anomaly"] == -1]
 print(f"Number of anomalies detected: {len(anomalies)}")
 print(anomalies.head())
 
-df.to_csv("logs/isolationForest/DoS_with_predictions.csv", index=False)
+
+df.to_csv(OUTPUT_FILE, index=False)
+print(f"Saved to: {OUTPUT_FILE}")

@@ -9,13 +9,19 @@ from pymodbus.exceptions import ModbusIOException
 import time
 import threading
 from datetime import datetime
+from pathlib import Path
 import os
 import atexit
 
+BASE           = Path(__file__).resolve().parents[2]
+LOG_FILE       = BASE / "logs" / "plc" / "normal" / "plc_data_log.csv"
+ERROR_LOG_FILE = BASE / "logs" / "plc" / "normal" / "error_log.txt"
+LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+
 # ----- Configuration -----
 PLC_IP = "127.0.0.1"
-LOG_FILE = "logs/plc/normal/plc_data_log.csv"
-ERROR_LOG_FILE = "logs/plc/normal/error_log.txt"
+#LOG_FILE = "logs/plc/normal/plc_data_log.csv"
+#ERROR_LOG_FILE = "logs/plc/normal/error_log.txt"
 MAX_LOG_SIZE = 50_000_000  # 50 MB
 EXPERIMENT = "normal"
 

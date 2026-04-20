@@ -15,26 +15,20 @@ network = pd.read_csv(BASE / "logs/network/normal/network_log.csv")
 plc["timestamp"] = pd.to_datetime(plc["timestamp"])
 network["timestamp"] = pd.to_datetime(network["timestamp"], format="mixed")
 
-network["interval_since_last"] = network["interval_since_last"].fillna(0)
+network = network.iloc[50:]
+
+network = network.dropna(subset=["interval_since_last"])
+network = network[network["interval_since_last"] > 0.001]
+
+network = network[network["packet_rate"] < 1000]
+
+start_time = network["timestamp"].min()
+plc = plc[plc["timestamp"] >= start_time]
 
 plc = plc.sort_values("timestamp").reset_index(drop=True)
 network = network.sort_values("timestamp").reset_index(drop=True)
+
 network["is_write"] = network["function_code"].isin([5, 6, 15, 16]).astype(int)
-
-merged = pd.merge_asof(
-  plc, 
-  network, 
-  on="timestamp", 
-  direction="nearest", 
-  tolerance=pd.Timedelta("100ms"), 
-  suffixes=("_plc", "_network")
-  )
-
-os.makedirs(BASE / "logs/merged/normal", exist_ok=True)
-
-merged.to_csv(BASE / "logs/merged/normal/merged_log.csv", index=False)
-
-print("Merged dataset saved to /logs/merged/normal/merged_log.csv")
 
 network = network.set_index("timestamp")
 plc = plc.set_index("timestamp")
@@ -46,18 +40,27 @@ aggregation = network.resample("100ms").agg({
   "is_write": "sum"
 })
 
-aggregation.columns = ["packet_count", "avg_packet_rate", "avg_interval_since_last", "write_count"]
+aggregation.columns = [
+  "packet_count",
+  "avg_packet_rate",
+  "avg_interval_since_last",
+  "write_count"
+]
 
-combine = pd.merge_asof(
-    plc.sort_index(),
-    aggregation.sort_index(),
-    left_index=True,
-    right_index=True,
-    direction="nearest",
-    tolerance=pd.Timedelta("100ms")
+aggregation = aggregation.fillna(0)
+
+merged = pd.merge_asof(
+  plc.sort_index(),
+  aggregation.sort_index(),
+  left_index=True,
+  right_index=True,
+  direction="nearest",
+  tolerance=pd.Timedelta("100ms")
 ).fillna(0)
 
-combine = combine.reset_index()
+combined = merged.reset_index()
 
-combine.to_csv(BASE / "logs/merged/normal/combined_log.csv", index=False)
-print("Combined dataset saved to /logs/merged/normal/combined_log.csv")
+os.makedirs(BASE / "logs/merged", exist_ok=True)
+combined.to_csv(BASE / "logs/merged/merged_log.csv", index=False)
+
+print("Combined dataset saved to /logs/merged/merged_log.csv")

@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv("logs/merged/normal/normal.csv")
+df = pd.read_csv("logs/merged/attack.csv")
 attack = df.copy()
 
 attack.loc[1400:1460] = df.loc[100:160].values

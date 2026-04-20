@@ -1,7 +1,8 @@
 import pandas as pd
+import numpy as np
 from sklearn.ensemble import IsolationForest
 
-df_train = pd.read_csv("logs/merged/normal/normal.csv")
+df_train = pd.read_csv("logs/merged/normal.csv")
 
 features = [
   "water_level", "water_demand",
@@ -12,18 +13,23 @@ features = [
 
 X = df_train[features].astype(float)
 
-model = IsolationForest(contamination=0.01, random_state=42)
+model = IsolationForest(random_state=42)
 model.fit(X)
 
-df_test = pd.read_csv("logs/attacks/replay.csv")
-# df_test = df_test.iloc[60:].copy()
+df = pd.read_csv("logs/attacks/DoS.csv")
+X_test = df[features].astype(float)
 
-X_test = df_test[features].astype(float)
-predictions = model.predict(X_test)
-df_test["anomaly"] = predictions
+scores = model.decision_function(X_test)
+df["score"] = scores
 
+threshold = np.percentile(scores, 1)
 
-anomalies = df_test[df_test["anomaly"] == -1]
+df["anomaly"] = (scores < threshold).astype(int)
+df["anomaly"] = df["anomaly"].apply(lambda x: -1 if x == 1 else 1)
+
+anomalies = df[df["anomaly"] == -1]
+
 print(f"Number of anomalies detected: {len(anomalies)}")
 print(anomalies.head())
-df_test.to_csv("logs/isolationForest/replay_with_predictions.csv", index=False)
+
+df.to_csv("logs/isolationForest/DoS_with_predictions.csv", index=False)

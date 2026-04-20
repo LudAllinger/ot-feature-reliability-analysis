@@ -1,0 +1,9 @@
+import pandas as pd
+
+df = pd.read_csv("logs/merged/attack.csv")
+attack = df.copy()
+
+attack.loc[5000:5050, "inlet"] += True
+attack.loc[5000:5050, "outlet"] += True
+
+attack.to_csv("logs/attacks/MitM.csv", index=False)

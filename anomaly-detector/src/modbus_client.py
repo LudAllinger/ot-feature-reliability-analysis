@@ -67,12 +67,10 @@ def read_plc_data():
                 inlet = coils.bits[0]
                 outlet = coils.bits[1]
                 pump = coils.bits[2]
-                levelArm = coils.bits[3]
-                chemArm = coils.bits[4]
 
                 # Log the data
                 log_file.write(
-                    f"{timestamp},{EXPERIMENT},{wl},{wd},{inlet},{outlet},{pump},{levelArm},{chemArm}\n"
+                    f"{timestamp},{EXPERIMENT},{wl},{wd},{inlet},{outlet},{pump}\n"
                 )
 
                 # Flush every 10 lines to ensure data is written to disk
@@ -93,7 +91,7 @@ def read_plc_data():
 
                     log_file = open(LOG_FILE, "w")
                     log_file.write(
-                        "timestamp,experiment,water_level,water_demand,inlet,outlet,pump,levelArm,chemArm\n"
+                        "timestamp,experiment,water_level,water_demand,inlet,outlet,pump\n"
                     )
 
             # Heartbeat
@@ -130,7 +128,7 @@ print("Connected to PLC")
 
 # Initialize log file
 with open(LOG_FILE, "w") as f:
-    f.write("timestamp,experiment,water_level,water_demand,inlet,outlet,pump,levelArm,chemArm\n")
+    f.write("timestamp,experiment,water_level,water_demand,inlet,outlet,pump\n")
 
 # Start data reading thread
 threading.Thread(target=read_plc_data, daemon=True).start()

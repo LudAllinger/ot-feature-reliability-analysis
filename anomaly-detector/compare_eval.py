@@ -174,96 +174,99 @@ print(f"\nResults saved to: {OUTPUT}")
 
 # ── Plot ─────────────────────────────────────────────────────────────
 def plot(results: dict, save_dir: Path):
-    # Exclude timings from main plots since ground truth is unknown
-    plot_scenarios = [s for s in results if results[s]["ground_truth"]["modified_rows_count"] > 0
+    plot_scenarios = [s for s in results if
+                      results[s]["ground_truth"]["modified_rows_count"] > 0
                       or results[s]["evaluation"]["false_positives"] > 0
                       or s == "normal"]
 
     scenarios = plot_scenarios
-    precision = [results[s]["evaluation"]["precision"] * 100 for s in scenarios]
-    recall    = [results[s]["evaluation"]["recall"] * 100    for s in scenarios]
+    accuracy  = [results[s]["evaluation"]["precision"] * 100 for s in scenarios]
+    coverage  = [results[s]["evaluation"]["recall"] * 100    for s in scenarios]
     f1        = [results[s]["evaluation"]["f1_score"] * 100  for s in scenarios]
-    tp        = [results[s]["evaluation"]["true_positives"]  for s in scenarios]
-    fn        = [results[s]["evaluation"]["false_negatives"] for s in scenarios]
-    fp        = [results[s]["evaluation"]["false_positives"] for s in scenarios]
+    caught    = [results[s]["evaluation"]["true_positives"]  for s in scenarios]
+    missed    = [results[s]["evaluation"]["false_negatives"] for s in scenarios]
+    false_a   = [results[s]["evaluation"]["false_positives"] for s in scenarios]
     expected  = [results[s]["ground_truth"]["modified_rows_count"] for s in scenarios]
 
     x     = np.arange(len(scenarios))
-    width = 0.25
+    width = 0.35
 
     fig, axes = plt.subplots(1, 3, figsize=(22, 7))
     fig.suptitle(
-        "Rule-Based Anomaly Detection — Ground Truth Comparison",
+        "Rule-Based Anomaly Detection — Evaluation Results",
         fontsize=13, fontweight="bold"
     )
 
-    # ── Plot 1: Precision, Recall, F1 ───────────────────────────────
-    ax1 = axes[0]
-    b1  = ax1.bar(x - width, precision, width, label="Precision",
-                  color="#4C72B0", edgecolor="white", linewidth=0.8)
-    b2  = ax1.bar(x,          recall,   width, label="Recall",
-                  color="#DD8452", edgecolor="white", linewidth=0.8)
-    b3  = ax1.bar(x + width,  f1,       width, label="F1 Score",
-                  color="#55A868", edgecolor="white", linewidth=0.8)
-    ax1.set_title("Precision, Recall and F1 Score\nper scenario", fontsize=11)
+    # ── Plot 1: Overall detection score ─────────────────────────────
+    ax1    = axes[0]
+    colors = ['#1D9E75' if v > 90 else '#EF9F27' if v > 30 else '#E24B4A' for v in f1]
+    bars   = ax1.bar(x, f1, width=0.5, color=colors,
+                     edgecolor="white", linewidth=0.8)
+    ax1.set_title("Overall detection score\nper scenario", fontsize=11)
     ax1.set_ylabel("Score (%)")
     ax1.set_xticks(x)
     ax1.set_xticklabels(scenarios, fontsize=8, rotation=30, ha="right")
     ax1.set_ylim(0, 115)
-    ax1.axhline(100, color="green", linestyle="--", linewidth=1,
+    ax1.axhline(100, color="#1D9E75", linestyle="--", linewidth=1,
                 alpha=0.5, label="100%")
-    ax1.legend(fontsize=9)
-    for bars in [b1, b2, b3]:
+    ax1.legend(fontsize=8)
+    for bar, val in zip(bars, f1):
+        if val > 0:
+            ax1.text(bar.get_x() + bar.get_width() / 2,
+                     bar.get_height() + 1.5, f"{val:.0f}%",
+                     ha="center", va="bottom", fontsize=8, fontweight="bold")
+
+    from matplotlib.patches import Patch
+    legend_elements = [
+        Patch(facecolor="#1D9E75", label="Strong (>90%)"),
+        Patch(facecolor="#EF9F27", label="Partial"),
+        Patch(facecolor="#E24B4A", label="Not detected"),
+    ]
+    ax1.legend(handles=legend_elements, fontsize=8)
+
+    # ── Plot 2: Alert accuracy vs attack coverage ────────────────────
+    ax2    = axes[1]
+    bars_a = ax2.bar(x - width/2, accuracy, width, label="Alert accuracy",
+                     color="#378ADD", edgecolor="white", linewidth=0.8)
+    bars_c = ax2.bar(x + width/2, coverage, width, label="Attack coverage",
+                     color="#7F77DD", edgecolor="white", linewidth=0.8)
+    ax2.set_title("Alert accuracy vs attack coverage\nper scenario", fontsize=11)
+    ax2.set_ylabel("Score (%)")
+    ax2.set_xticks(x)
+    ax2.set_xticklabels(scenarios, fontsize=8, rotation=30, ha="right")
+    ax2.set_ylim(0, 115)
+    ax2.legend(fontsize=9)
+    for bars in [bars_a, bars_c]:
         for bar in bars:
             h = bar.get_height()
             if h > 0:
-                ax1.text(bar.get_x() + bar.get_width() / 2,
+                ax2.text(bar.get_x() + bar.get_width() / 2,
                          h + 1.5, f"{h:.0f}%",
                          ha="center", va="bottom", fontsize=7, fontweight="bold")
 
-    # ── Plot 2: TP / FN / FP stacked ────────────────────────────────
-    ax2  = axes[1]
-    b_tp = ax2.bar(x, tp, width=0.5, label="True positives",
-                   color="#55A868", edgecolor="white", linewidth=0.8)
-    b_fn = ax2.bar(x, fn, width=0.5, bottom=tp,
-                   label="False negatives",
-                   color="#DD8452", edgecolor="white", linewidth=0.8)
-    b_fp = ax2.bar(x, fp, width=0.5,
-                   bottom=[t + f for t, f in zip(tp, fn)],
-                   label="False positives",
-                   color="#C44E52", edgecolor="white", linewidth=0.8)
-    ax2.plot(x, expected, "k--o", linewidth=1.5, markersize=5,
+    # ── Plot 3: Attacks caught / missed / false alarms ───────────────
+    ax3   = axes[2]
+    b_c   = ax3.bar(x, caught, width=0.5, label="Attacks caught",
+                    color="#1D9E75", edgecolor="white", linewidth=0.8)
+    b_m   = ax3.bar(x, missed, width=0.5, bottom=caught,
+                    label="Attacks missed",
+                    color="#EF9F27", edgecolor="white", linewidth=0.8)
+    b_f   = ax3.bar(x, false_a, width=0.5,
+                    bottom=[c + m for c, m in zip(caught, missed)],
+                    label="False alarms",
+                    color="#E24B4A", edgecolor="white", linewidth=0.8)
+    ax3.plot(x, expected, "k--o", linewidth=1.5, markersize=5,
              label="Expected (ground truth)", zorder=5)
-    ax2.set_title("Detection breakdown\n(TP / FN / FP vs ground truth)", fontsize=11)
-    ax2.set_ylabel("Number of rows")
-    ax2.set_xticks(x)
-    ax2.set_xticklabels(scenarios, fontsize=8, rotation=30, ha="right")
-    ax2.legend(fontsize=9)
-    for i, (t, f, p) in enumerate(zip(tp, fn, fp)):
-        total = t + f + p
-        if total > 0:
-            ax2.text(i, total + 0.5, str(total),
-                     ha="center", va="bottom", fontsize=8, fontweight="bold")
-
-    # ── Plot 3: False positive rate ──────────────────────────────────
-    ax3        = axes[2]
-    total_rows = [results[s]["ground_truth"]["total_rows"] for s in scenarios]
-    fp_rate    = [fp[i] / total_rows[i] * 100 for i in range(len(scenarios))]
-    colors     = ["#55A868" if s == "normal" else "#4C72B0" for s in scenarios]
-    bars3      = ax3.bar(x, fp_rate, width=0.5, color=colors,
-                         edgecolor="white", linewidth=0.8)
-    ax3.set_title("False positive rate\n(FP as % of total rows)", fontsize=11)
-    ax3.set_ylabel("False positive rate (%)")
+    ax3.set_title("Attacks caught, missed\nand false alarms", fontsize=11)
+    ax3.set_ylabel("Number of rows")
     ax3.set_xticks(x)
     ax3.set_xticklabels(scenarios, fontsize=8, rotation=30, ha="right")
-    ax3.axhline(0, color="green", linestyle="--", linewidth=1,
-                alpha=0.5, label="Target: 0%")
     ax3.legend(fontsize=9)
-    for bar, rate in zip(bars3, fp_rate):
-        h = bar.get_height()
-        ax3.text(bar.get_x() + bar.get_width() / 2,
-                 h + 0.05, f"{rate:.2f}%",
-                 ha="center", va="bottom", fontsize=8, fontweight="bold")
+    for i, (c, m, f) in enumerate(zip(caught, missed, false_a)):
+        total = c + m + f
+        if total > 0:
+            ax3.text(i, total + 0.5, str(total),
+                     ha="center", va="bottom", fontsize=8, fontweight="bold")
 
     plt.tight_layout()
     plt.savefig(save_dir / "ground_truth_comparison.png", dpi=150, bbox_inches="tight")

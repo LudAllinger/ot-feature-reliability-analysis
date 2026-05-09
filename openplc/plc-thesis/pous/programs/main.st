@@ -8,9 +8,7 @@ VAR
 	pump : bool AT %QX0.2 := FALSE; (* Another variable that need to be true to decrease the water level *)
 	level_alarm : bool AT %QX0.3 := FALSE; (* Alarm if something is wrong *)
 	water_demand : int AT %MW1 := 0; (* Demand of water that takes from the water tank *)
-	water_chemicals : int AT %MW3 := 50; (* Chemicals in the water *)
 	cycle_counter : int := 0; (* A counter to add deviations through MOD *)
-	chem_alarm : bool AT %QX0.4 := FALSE; (* Alarm if something is wrong *)
 	timer : TON; (* A timer for when the commands will execute (every 100ms) *)
 	timer_trigger : bool := TRUE;
 	noise : int;
@@ -24,11 +22,7 @@ cycle_counter := cycle_counter + 1;
 
 water_demand := 1 + (cycle_counter MOD 2);
 
-noise := ((cycle_counter * 5) MOD 5) - 2;
-
-IF ((cycle_counter * 7) MOD 97) = 0 THEN
-    water_chemicals := water_chemicals + ((cycle_counter MOD 3) - 1);
-END_IF;
+noise := (cycle_counter MOD 5) - 2;
 
 IF inlet_valve THEN
     inlet_flow := inlet_flow + 2;
@@ -57,7 +51,7 @@ END_IF;
 END_IF;
 
 IF NOT timer.Q THEN
-timer_trigger := TRUE;
+    timer_trigger := TRUE;
 END_IF;
 
 IF water_level >= 90 THEN
@@ -72,15 +66,9 @@ ELSIF water_level <= 50 THEN
 END_IF;
 
 IF water_level >= 95 THEN
-level_alarm := TRUE;
+    level_alarm := TRUE;
 ELSIF water_level < 85 THEN
-level_alarm := FALSE;
-END_IF;
-
-IF water_chemicals > 53 OR water_chemicals < 48 THEN
-chem_alarm := TRUE;
-ELSE
-chem_alarm := FALSE;
+    level_alarm := FALSE;
 END_IF;
 
 END_PROGRAM

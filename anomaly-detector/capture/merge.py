@@ -12,8 +12,8 @@ BASE = Path(__file__).resolve().parents[2]
 plc = pd.read_csv(BASE / "logs/plc/normal/plc_data_log.csv")
 network = pd.read_csv(BASE / "logs/network/normal/network_log.csv")
 
-plc["timestamp"] = pd.to_datetime(plc["timestamp"])
-network["timestamp"] = pd.to_datetime(network["timestamp"], format="mixed")
+plc["timestamp"] = pd.to_datetime(plc["timestamp"], format="ISO8601")
+network["timestamp"] = pd.to_datetime(network["timestamp"], format="ISO8601")
 
 network = network.iloc[50:]
 

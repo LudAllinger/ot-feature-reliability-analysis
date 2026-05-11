@@ -10,12 +10,14 @@ from pathlib import Path
 BASE = Path(__file__).resolve().parents[2]
 
 plc = pd.read_csv(BASE / "logs/plc/normal/plc_data_log.csv")
+plc = plc.drop(columns=["experiment"])
+
 network = pd.read_csv(BASE / "logs/network/normal/network_log.csv")
 
 plc["timestamp"] = pd.to_datetime(plc["timestamp"], format="ISO8601")
 network["timestamp"] = pd.to_datetime(network["timestamp"], format="ISO8601")
 
-network = network.iloc[50:]
+network = network.iloc[100:]
 
 network = network.dropna(subset=["interval_since_last"])
 network = network[network["interval_since_last"] > 0.001]
@@ -54,7 +56,7 @@ merged = pd.merge_asof(
   aggregation.sort_index(),
   left_index=True,
   right_index=True,
-  direction="nearest",
+  direction="backward",
   tolerance=pd.Timedelta("100ms")
 ).fillna(0)
 

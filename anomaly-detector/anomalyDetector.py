@@ -10,7 +10,6 @@ RULE_WATER_LEVEL    = "WATER_LEVEL_ANOMALY"
 RULE_WATER_DEMAND   = "WATER_DEMAND_ANOMALY"
 RULE_VALVE_STATE    = "VALVE_STATE_ANOMALY"
 RULE_PUMP_STATE     = "PUMP_STATE_ANOMALY"
-RULE_CHEM_ALARM     = "CHEM_ALARM"
 
 ALL_RULES = {
     RULE_PACKET_COUNT,
@@ -20,12 +19,11 @@ ALL_RULES = {
     RULE_WATER_DEMAND,
     RULE_VALVE_STATE,
     RULE_PUMP_STATE,
-    RULE_CHEM_ALARM,
 }
 
 # Groups for per-parameter evaluation
 NETWORK_RULES = {RULE_PACKET_COUNT, RULE_INTERVAL, RULE_WRITE}
-PROCESS_RULES = {RULE_WATER_LEVEL, RULE_WATER_DEMAND, RULE_VALVE_STATE, RULE_PUMP_STATE, RULE_CHEM_ALARM}
+PROCESS_RULES = {RULE_WATER_LEVEL, RULE_WATER_DEMAND, RULE_VALVE_STATE, RULE_PUMP_STATE}
 
 
 class AnomalyDetector:
@@ -146,15 +144,6 @@ class AnomalyDetector:
                             f"outlet={outlet} but pump={pump} — should always match",
                             row,
                         ))
-
-        if RULE_CHEM_ALARM in self.enabled:
-            if self.process["invariants"]["chemArm_always_false"]:
-                if row.get("chemArm") is True:
-                    alerts.append(self._alert(
-                        RULE_CHEM_ALARM,
-                        "chemArm=True — never occurs in normal operation",
-                        row,
-                    ))
 
         return alerts
 

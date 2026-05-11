@@ -19,7 +19,7 @@ X = df_train[features].astype(float)
 model = IsolationForest(random_state=42)
 model.fit(X)
 
-ATTACK_FILE = BASE / "logs" / "attacks" / "DoS.csv"
+ATTACK_FILE = BASE / "logs" / "attacks" / "packetCount.csv"
 OUTPUT_FILE = BASE / "logs" / "isolationForest" / f"{ATTACK_FILE.stem}_with_predictions.csv"
 OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 

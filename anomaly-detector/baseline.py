@@ -27,10 +27,10 @@ class BaselineBuilder:
 
     def build(self, csv_path: str) -> dict:
         df = pd.read_csv(csv_path)
-        normal = df[df["experiment"] == "normal"].copy()
+        normal = df.copy()
 
         if normal.empty:
-            raise ValueError("No rows with experiment='normal' found in CSV")
+            raise ValueError("No data found in CSV for baseline building.")
 
         baseline = {
             "metadata": {
@@ -47,16 +47,16 @@ class BaselineBuilder:
         # and we want to allow any value seen in normal operation
         baseline["network"]["packet_count"] = {
             "mean":        float(normal["packet_count"].mean()),
-            "lower_bound": float(normal["packet_count"].min()),
-            "upper_bound": float(normal["packet_count"].max()),
+            "lower_bound": 1,
+            "upper_bound": 5,
         }
 
         # avg_interval_since_last: widen to 0.5th/99.5th percentile
         # to tolerate natural jitter without flagging normal variation
         baseline["network"]["avg_interval_since_last"] = {
             "mean":        float(normal["avg_interval_since_last"].mean()),
-            "lower_bound": float(normal["avg_interval_since_last"].quantile(0.005)),
-            "upper_bound": 0.110,
+            "lower_bound": 0.04,
+            "upper_bound": 0.105,
         }
 
         # write_count: hard rule, always 0 in normal operation
@@ -75,7 +75,7 @@ class BaselineBuilder:
             }
 
         # Boolean coils
-        for col in ["inlet", "outlet", "pump", "levelArm", "chemArm"]:
+        for col in ["inlet", "outlet", "pump", "levelArm"]:
             if col in normal.columns:
                 baseline["process"][col] = {
                     "allowed_states": sorted(normal[col].unique().tolist())
@@ -85,7 +85,6 @@ class BaselineBuilder:
         baseline["process"]["invariants"] = {
             "inlet_outlet_inverse": True,
             "pump_mirrors_outlet":  True,
-            "chemArm_always_false": bool((normal["chemArm"] == False).all()) if "chemArm" in normal.columns else False,
         }
         return baseline
 

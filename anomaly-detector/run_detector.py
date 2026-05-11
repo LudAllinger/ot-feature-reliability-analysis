@@ -10,10 +10,10 @@ OUTPUT_DIR = BASE / "logs" / "results"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # ── Configure your run here ──────────────────────────────────────────
-INPUT_CSV = BASE / "logs" / "attacks" / "DoS.csv"
-SCENARIO  = "DoS"
+INPUT_CSV = BASE / "logs" / "attacks" / "packetCount.csv"
+SCENARIO  = "Packet Count"
 RULES     = ALL_RULES
-OUTPUT_DIR  = r"C:\Users\ameli\OneDrive\Documents\thesis\thesis\anomaly-detector\\results"
+OUTPUT_DIR  = BASE / "logs" / "results"
 # ────────────────────────────────────────────────────────────────────
 
 def next_attempt_number(output_dir: Path, scenario: str) -> int:

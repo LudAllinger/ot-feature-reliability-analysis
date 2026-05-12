@@ -152,7 +152,6 @@ class AnomalyDetector:
             "rule":       rule,
             "detail":     detail,
             "timestamp":  row.get("timestamp"),
-            "experiment": row.get("experiment"),
         }
 
     @classmethod

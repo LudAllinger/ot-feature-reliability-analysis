@@ -37,14 +37,12 @@ plc = plc.set_index("timestamp")
 
 aggregation = network.resample("100ms").agg({
   "function_code": "count",
-  "packet_rate": "mean",
   "interval_since_last": "mean",
   "is_write": "sum"
 })
 
 aggregation.columns = [
   "packet_count",
-  "avg_packet_rate",
   "avg_interval_since_last",
   "write_count"
 ]

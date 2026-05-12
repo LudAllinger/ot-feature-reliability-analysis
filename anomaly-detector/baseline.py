@@ -47,16 +47,16 @@ class BaselineBuilder:
         # and we want to allow any value seen in normal operation
         baseline["network"]["packet_count"] = {
             "mean":        float(normal["packet_count"].mean()),
-            "lower_bound": 1,
-            "upper_bound": 5,
+            "lower_bound": int(normal["packet_count"].min()),
+            "upper_bound": int(normal["packet_count"].max()),
         }
 
         # avg_interval_since_last: widen to 0.5th/99.5th percentile
         # to tolerate natural jitter without flagging normal variation
         baseline["network"]["avg_interval_since_last"] = {
             "mean":        float(normal["avg_interval_since_last"].mean()),
-            "lower_bound": 0.04,
-            "upper_bound": 0.105,
+            "lower_bound": 0.07,
+            "upper_bound": 0.11,
         }
 
         # write_count: hard rule, always 0 in normal operation

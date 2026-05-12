@@ -10,8 +10,8 @@ OUTPUT_DIR = BASE / "logs" / "results"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # ── Configure your run here ──────────────────────────────────────────
-INPUT_CSV = BASE / "logs" / "attacks" / "packetCount.csv"
-SCENARIO  = "Packet Count"
+INPUT_CSV = BASE / "logs" / "attacks" / "waterLevel.csv"
+SCENARIO  = "Write Function Call"
 RULES     = ALL_RULES
 OUTPUT_DIR  = BASE / "logs" / "results"
 # ────────────────────────────────────────────────────────────────────

@@ -1,20 +1,20 @@
 {
   "metadata": {
-    "total_rows_used": 23121,
+    "total_rows_used": 108029,
     "percentile_low": 1,
     "percentile_high": 99,
-    "source": "/home/ludvig-allinger/thesis-project/thesis/logs/merged/normal.csv"
+    "source": "E:\\Thesis\\thesis\\logs\\merged\\normal.csv"
   },
   "network": {
     "packet_count": {
-      "mean": 2.734310799705895,
-      "lower_bound": 1,
+      "mean": 1.9960103305593868,
+      "lower_bound": 0,
       "upper_bound": 5
     },
     "avg_interval_since_last": {
-      "mean": 0.07960741310719151,
-      "lower_bound": 0.04,
-      "upper_bound": 0.105
+      "mean": 0.09987773398559212,
+      "lower_bound": 0.07,
+      "upper_bound": 0.11
     },
     "write_count": {
       "expected": 0,
@@ -23,11 +23,11 @@
   },
   "process": {
     "water_level": {
-      "min": 40,
+      "min": 34,
       "max": 99
     },
     "water_demand": {
-      "min": 1,
+      "min": 0,
       "max": 2
     },
     "inlet": {

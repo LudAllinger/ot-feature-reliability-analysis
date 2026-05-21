@@ -25,7 +25,7 @@ X_train_scaled = scaler.fit_transform(X_train)
 model = OneClassSVM(kernel="rbf", gamma="scale", nu=0.01)
 model.fit(X_train_scaled)
 
-ATTACK_FILE = BASE / "logs" / "attacks" / "waterLevel.csv"
+ATTACK_FILE = BASE / "logs" / "attacks" / "writeFC.csv"
 OUTPUT_FILE = BASE / "logs" / "One-Class-SVM" / f"{ATTACK_FILE.stem}_with_predictions.csv"
 OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
@@ -44,6 +44,13 @@ df_test["score"] = test_scores
 df_test["anomaly"] = np.where(test_scores < threshold, -1, 1)
 
 anomalies = df_test[df_test["anomaly"] == -1]
+
+total_rows = len(df_test)
+total_anomalies = len(anomalies)
+
+detection_rate = (total_anomalies / total_rows) * 100
+print(f"Total rows: {total_rows}")
+print(f"Detection rate: {detection_rate:.2f}%")
 
 print(f"Number of anomalies detected: {len(anomalies)}")
 print(anomalies.head())

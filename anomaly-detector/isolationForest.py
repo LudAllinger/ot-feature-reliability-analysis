@@ -23,6 +23,7 @@ model = IsolationForest(random_state=42)
 model.fit(X_train_scaled)
 
 ATTACK_FILE = BASE / "logs" / "attacks" / "waterLevel.csv"
+".csv"
 OUTPUT_FILE = BASE / "logs" / "isolationForest" / f"{ATTACK_FILE.stem}_with_predictions.csv"
 OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
@@ -40,9 +41,15 @@ df_test["anomaly"] = np.where(scores < threshold, -1, 1).astype(int)
 
 anomalies = df_test[df_test["anomaly"] == -1]
 
+total_rows = len(df_test)
+total_anomalies = len(anomalies)
+
+detection_rate = (total_anomalies / total_rows) * 100
+print(f"Total rows: {total_rows}")
+print(f"Detection rate: {detection_rate:.2f}%")
+
 print(f"Number of anomalies detected: {len(anomalies)}")
 print(anomalies.head())
-
 
 df_test.to_csv(OUTPUT_FILE, index=False)
 print(f"Saved to: {OUTPUT_FILE}")

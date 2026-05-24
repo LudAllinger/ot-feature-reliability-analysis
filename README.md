@@ -19,7 +19,7 @@ The project revolves around anomaly detection on individual behavorial indicator
    - Isolation Forest and One-Class SVM implementation
    - Rule-based IDS implementation
 
-- `/anomaly-detector/captures`
+- `/anomaly-detector/capture`
   - Network capture scripts and generated traffic
 
 - `/attacks`
